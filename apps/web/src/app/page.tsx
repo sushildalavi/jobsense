@@ -20,28 +20,28 @@ const features = [
   {
     icon: Search,
     title: 'Intelligent Job Discovery',
-    description: 'AI scrapes and matches jobs from multiple sources tailored to your profile and preferences.',
+    description: 'Pulls listings through Apify actors and scores them against your profile.',
     color: 'text-indigo-400',
     bg: 'bg-indigo-500/10 border-indigo-500/20',
   },
   {
     icon: FileText,
     title: 'Smart Resume Tailoring',
-    description: 'Automatically tailors your resume for each job to maximize match scores and ATS compatibility.',
+    description: 'Rewrites your resume text to emphasize what a job asks for, for you to review.',
     color: 'text-violet-400',
     bg: 'bg-violet-500/10 border-violet-500/20',
   },
   {
     icon: Mail,
     title: 'Email Intelligence',
-    description: 'Parses your inbox to detect interview invites, rejections, and OA assessments automatically.',
+    description: 'Classifies recruiting threads from Gmail, such as invites, rejections and assessments.',
     color: 'text-cyan-400',
     bg: 'bg-cyan-500/10 border-cyan-500/20',
   },
   {
     icon: Calendar,
     title: 'Interview Scheduler',
-    description: 'Syncs interview events from emails to your Google Calendar with automatic reminders.',
+    description: 'Creates calendar events from interview times found in email.',
     color: 'text-emerald-400',
     bg: 'bg-emerald-500/10 border-emerald-500/20',
   },
@@ -52,30 +52,23 @@ const features = [
     color: 'text-amber-400',
     bg: 'bg-amber-500/10 border-amber-500/20',
   },
-  {
-    icon: Brain,
-    title: 'AI Copilot',
-    description: 'Agentic AI that autonomously discovers, applies, and tracks jobs on your behalf.',
-    color: 'text-primary',
-    bg: 'bg-primary/10 border-primary/20',
-  },
 ]
 
 const steps = [
   {
     num: '01',
     title: 'Upload Your Resume',
-    description: 'Upload your master resume. Our AI parses and indexes your skills, experience, and preferences.',
+    description: 'Upload your master resume. A language model can extract your skills and experience.',
   },
   {
     num: '02',
-    title: 'AI Discovers Jobs',
-    description: 'The agent searches multiple job boards and ranks matches by fit score and preferences.',
+    title: 'Sync and Score Jobs',
+    description: 'Sync listings from your configured sources and rank them by fit score.',
   },
   {
     num: '03',
-    title: 'Apply & Track',
-    description: 'Auto-tailor resumes, submit applications, and track every stage from email to offer.',
+    title: 'Tailor and Track',
+    description: 'Tailor a resume, apply on the employer site, and track every stage to offer.',
   },
 ]
 
@@ -112,7 +105,7 @@ export default function LandingPage() {
       <section className="relative z-10 max-w-7xl mx-auto px-6 pt-24 pb-20 text-center">
         <Badge variant="outline" className="mb-6 border-primary/30 text-primary bg-primary/5">
           <Brain className="w-3 h-3 mr-1.5" />
-          Powered by GPT-4 & Claude
+          Uses OpenAI or Anthropic models
         </Badge>
         <h1 className="text-5xl md:text-7xl font-black tracking-tight mb-6">
           Your{' '}
@@ -121,8 +114,8 @@ export default function LandingPage() {
           Job Search Copilot
         </h1>
         <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-10">
-          JobSense intelligently discovers jobs, tailors your resume, and tracks every application —
-          all on autopilot. Land your dream job faster with less effort.
+          JobSense scores job listings against your profile, drafts tailored resumes, and keeps
+          every application in one place.
         </p>
         <div className="flex items-center justify-center gap-4 flex-wrap">
           <Button size="xl" asChild className="shadow-glow">
@@ -136,19 +129,6 @@ export default function LandingPage() {
           </Button>
         </div>
 
-        {/* Stats */}
-        <div className="flex items-center justify-center gap-12 mt-16 flex-wrap">
-          {[
-            { label: 'Jobs Discovered', value: '10,000+' },
-            { label: 'Applications Tracked', value: '50,000+' },
-            { label: 'Interviews Scheduled', value: '5,000+' },
-          ].map((stat) => (
-            <div key={stat.label} className="text-center">
-              <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-              <p className="text-sm text-muted-foreground">{stat.label}</p>
-            </div>
-          ))}
-        </div>
       </section>
 
       {/* Features */}
@@ -156,7 +136,7 @@ export default function LandingPage() {
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Everything you need to land the job</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            From discovery to offer, JobSense covers every step of your job search journey.
+            Tools for each stage of a job search, from listing to offer.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -179,7 +159,7 @@ export default function LandingPage() {
       <section className="relative z-10 max-w-7xl mx-auto px-6 py-20">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">How JobSense works</h2>
-          <p className="text-muted-foreground">Three simple steps to supercharge your job search</p>
+          <p className="text-muted-foreground">Three steps</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {steps.map((step, i) => (
@@ -201,10 +181,10 @@ export default function LandingPage() {
       <section className="relative z-10 max-w-7xl mx-auto px-6 py-20">
         <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 to-secondary/10 p-12 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Ready to automate your job search?
+            Organize your job search
           </h2>
           <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Join thousands of job seekers using JobSense to land interviews faster.
+            Create an account to start tracking your applications.
           </p>
           <Button size="xl" asChild className="shadow-glow">
             <Link href="/register">

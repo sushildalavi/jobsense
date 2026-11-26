@@ -32,6 +32,7 @@ from app.schemas.calendar import CalendarEventResponse
 from app.schemas.email import EmailThreadResponse
 from app.schemas.resume import ResumeVersionResponse, TailoringRequest
 from app.services.application_service import ApplicationService
+from app.services.resume_service import ResumeService
 
 logger = structlog.get_logger(__name__)
 router = APIRouter(prefix="/applications", tags=["applications"])
@@ -225,7 +226,11 @@ async def tailor_resume_for_application(
     """Trigger resume tailoring for this application (async)."""
     from app.tasks.ai_tasks import tailor_resume
 
-    tailor_resume.delay(str(app_id), str(data.resume_id))
+    # Both lookups answer 404 unless the record belongs to the caller.
+    await ApplicationService(db).get_application(app_id, current_user.id)
+    await ResumeService(db).get_resume(data.resume_id, current_user.id)
+
+    tailor_resume.delay(str(app_id), str(data.resume_id), str(current_user.id))
     return {"message": "Resume tailoring triggered", "application_id": str(app_id)}
 
 
@@ -249,8 +254,9 @@ async def get_application_resume(
     application = result.scalar_one_or_none()
     if application is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Application not found")
-    if application.resume_version is None:
+    version = application.resume_version
+    if version is None or version.user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="No resume version linked"
         )
-    return ResumeVersionResponse.model_validate(application.resume_version)
+    return ResumeVersionResponse.model_validate(version)

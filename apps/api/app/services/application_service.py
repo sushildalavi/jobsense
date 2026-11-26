@@ -17,6 +17,7 @@ from sqlalchemy.orm import selectinload
 from app.models.application import Application, ApplicationEvent, ApplicationStatus, TriggeredBy
 from app.models.job import Job
 from app.schemas.application import ApplicationCreate, ApplicationUpdate
+from app.services.resume_service import ResumeService
 
 logger = structlog.get_logger(__name__)
 
@@ -129,6 +130,8 @@ class ApplicationService:
         data: ApplicationUpdate,
     ) -> Application:
         app = await self.get_application(app_id, user_id)
+        if data.resume_version_id is not None:
+            await ResumeService(self.db).get_version(data.resume_version_id, user_id)
         for field, value in data.model_dump(exclude_none=True).items():
             setattr(app, field, value)
         self.db.add(app)

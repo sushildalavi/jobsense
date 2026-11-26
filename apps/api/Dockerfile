@@ -1,30 +1,10 @@
-# ─── Stage 1: builder ────────────────────────────────────────────────────────
-FROM python:3.11-slim AS builder
-
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
-
-WORKDIR /build
-
-# Install Poetry
-RUN pip install poetry==1.8.2
-
-# Copy dependency manifests only (for layer caching)
-COPY pyproject.toml poetry.lock* ./
-
-# Export requirements without dev deps
-RUN poetry export --without dev --without-hashes -f requirements.txt -o requirements.txt
-
-# ─── Stage 2: runtime ────────────────────────────────────────────────────────
-FROM python:3.11-slim AS runtime
+FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
 # Create non-root user
-RUN addgroup --system applyflow && adduser --system --ingroup applyflow applyflow
+RUN addgroup --system jobsense && adduser --system --ingroup jobsense jobsense
 
 WORKDIR /app
 
@@ -34,17 +14,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies from builder stage
-COPY --from=builder /build/requirements.txt ./requirements.txt
+# requirements.txt is the same pinned set the Railway build installs
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application source
 COPY . .
 
 # Fix ownership
-RUN chown -R applyflow:applyflow /app
+RUN chown -R jobsense:jobsense /app
 
-USER applyflow
+USER jobsense
 
 EXPOSE 8000
 

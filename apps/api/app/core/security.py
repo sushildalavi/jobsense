@@ -79,7 +79,8 @@ def verify_token(token: str) -> TokenData:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         user_id_str: str | None = payload.get("sub")
         email: str | None = payload.get("email")
-        if user_id_str is None or email is None:
+        # Access tokens carry no "type"; refresh and reset tokens do.
+        if user_id_str is None or email is None or payload.get("type") is not None:
             raise credentials_exception
         return TokenData(user_id=UUID(user_id_str), email=email)
     except (JWTError, ValueError) as exc:

@@ -28,7 +28,7 @@ async def _create_application(
 ) -> dict:
     """POST to create an application and return the response body."""
     resp = await client.post(
-        "/api/v1/applications/",
+        "/api/v1/applications",
         json={"job_id": job_id},
         headers=auth_headers,
     )
@@ -64,7 +64,7 @@ class TestCreateApplication:
     ):
         """Unauthenticated creation returns 401."""
         resp = await client.post(
-            "/api/v1/applications/",
+            "/api/v1/applications",
             json={"job_id": test_job["id"]},
         )
         assert resp.status_code == 401
@@ -76,7 +76,7 @@ class TestCreateApplication:
     ):
         """Creating an application for a non-existent job returns 404 or 422."""
         resp = await client.post(
-            "/api/v1/applications/",
+            "/api/v1/applications",
             json={"job_id": str(uuid.uuid4())},
             headers=auth_headers,
         )
@@ -89,7 +89,7 @@ class TestCreateApplication:
     ):
         """Missing job_id returns 422."""
         resp = await client.post(
-            "/api/v1/applications/",
+            "/api/v1/applications",
             json={},
             headers=auth_headers,
         )
@@ -108,7 +108,7 @@ class TestListApplications:
         auth_headers: dict,
     ):
         """User with no applications sees an empty list."""
-        resp = await client.get("/api/v1/applications/", headers=auth_headers)
+        resp = await client.get("/api/v1/applications", headers=auth_headers)
         assert resp.status_code == 200
         body = resp.json()
         items = body if isinstance(body, list) else body.get("items", body.get("results", []))
@@ -124,7 +124,7 @@ class TestListApplications:
         app_body = await _create_application(client, auth_headers, test_job["id"])
         app_id = app_body["id"]
 
-        resp = await client.get("/api/v1/applications/", headers=auth_headers)
+        resp = await client.get("/api/v1/applications", headers=auth_headers)
         assert resp.status_code == 200
         body = resp.json()
         items = body if isinstance(body, list) else body.get("items", body.get("results", body))
@@ -133,7 +133,7 @@ class TestListApplications:
 
     async def test_list_applications_requires_auth(self, client: AsyncClient):
         """Unauthenticated listing returns 401."""
-        resp = await client.get("/api/v1/applications/")
+        resp = await client.get("/api/v1/applications")
         assert resp.status_code == 401
 
     async def test_list_applications_pagination(
@@ -163,7 +163,7 @@ class TestListApplications:
             async_session.add(job)
         await async_session.commit()
 
-        resp = await client.get("/api/v1/applications/?limit=1", headers=auth_headers)
+        resp = await client.get("/api/v1/applications?limit=1", headers=auth_headers)
         assert resp.status_code == 200
         body = resp.json()
         items = body if isinstance(body, list) else body.get("items", body.get("results", body))

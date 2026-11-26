@@ -8,8 +8,17 @@ from __future__ import annotations
 
 from typing import Optional
 
-from pydantic import computed_field
+from pydantic import computed_field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Signing keys that appear in this repository. Anyone can forge tokens with them.
+_PUBLISHED_SECRET_KEYS = {
+    "change-me-to-a-long-random-string-at-least-32-chars",
+    "your-super-secret-key-change-this-in-production-at-least-32-chars",
+    "test-secret-key-for-ci-only",
+}
+_LOCAL_ENVIRONMENTS = {"development", "test"}
+_MIN_SECRET_KEY_LENGTH = 32
 
 
 class Settings(BaseSettings):
@@ -18,6 +27,8 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         extra="ignore",
         case_sensitive=False,
+        # Validation errors would otherwise echo secrets into startup logs.
+        hide_input_in_errors=True,
     )
 
     # ── Database ──────────────────────────────────────────────────────────────
@@ -82,6 +93,21 @@ class Settings(BaseSettings):
                 "http://127.0.0.1:3000",
             ]
         return list(set(origins))
+
+    @model_validator(mode="after")
+    def require_private_secret_key(self) -> "Settings":
+        """Refuse to start a deployed environment with a guessable signing key."""
+        if self.ENVIRONMENT in _LOCAL_ENVIRONMENTS:
+            return self
+        if (
+            self.SECRET_KEY in _PUBLISHED_SECRET_KEYS
+            or len(self.SECRET_KEY) < _MIN_SECRET_KEY_LENGTH
+        ):
+            raise ValueError(
+                "SECRET_KEY must be a private random value of at least 32 characters "
+                "when ENVIRONMENT is not development or test"
+            )
+        return self
 
 
 # Singleton instance — import this throughout the codebase
