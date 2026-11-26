@@ -1,7 +1,7 @@
-version: "3.9"
-
 # =============================================================================
-# JobSense — Docker Compose (Production-like dev stack)
+# JobSense — Docker Compose development stack. The web app runs outside Compose.
+# Ports are bound to 127.0.0.1: the database uses a development password and
+# Redis and Flower have no authentication.
 # =============================================================================
 
 services:
@@ -14,7 +14,7 @@ services:
       POSTGRES_PASSWORD: jobsense
       POSTGRES_DB: jobsense
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -30,7 +30,7 @@ services:
     image: redis:7-alpine
     container_name: jobsense-redis
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
     volumes:
       - redis_data:/data
     healthcheck:
@@ -48,7 +48,7 @@ services:
       dockerfile: Dockerfile
     container_name: jobsense-api
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     environment:
       DATABASE_URL: postgresql://jobsense:jobsense@postgres:5432/jobsense
       REDIS_URL: redis://redis:6379/0
@@ -104,22 +104,6 @@ services:
     restart: unless-stopped
     command: celery -A app.tasks.celery_app beat --loglevel=info
 
-  # ─── Next.js Frontend ───────────────────────────────────────────────────────
-  web:
-    build:
-      context: ./apps/web
-      dockerfile: Dockerfile
-    container_name: jobsense-web
-    ports:
-      - "3000:3000"
-    environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
-    env_file:
-      - .env
-    depends_on:
-      - api
-    restart: unless-stopped
-
   # ─── Flower (Celery monitoring) ──────────────────────────────────────────────
   flower:
     image: mher/flower:2.0
@@ -128,7 +112,7 @@ services:
       CELERY_BROKER_URL: redis://redis:6379/0
       FLOWER_PORT: 5555
     ports:
-      - "5555:5555"
+      - "127.0.0.1:5555:5555"
     depends_on:
       - redis
     restart: unless-stopped

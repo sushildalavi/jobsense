@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     default: 'JobSense — AI Job Search Copilot',
     template: '%s | JobSense',
   },
-  description: 'Your AI-powered job search copilot. Discover, apply, and track jobs automatically.',
+  description: 'Score job listings, tailor resumes and track applications.',
   keywords: ['job search', 'AI', 'job tracker', 'resume', 'applications'],
 }
 

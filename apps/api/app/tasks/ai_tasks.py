@@ -31,17 +31,21 @@ def _run_async(coro):
     max_retries=2,
     default_retry_delay=60,
 )
-def tailor_resume(self, application_id: str, resume_id: str) -> Dict[str, Any]:
+def tailor_resume(
+    self, application_id: str, resume_id: str, user_id: Optional[str] = None
+) -> Dict[str, Any]:
     """Tailor a master resume for the given application's job."""
     logger.info("tailor_resume started", application_id=application_id, resume_id=resume_id)
     try:
-        return _run_async(_tailor_resume_async(application_id, resume_id))
+        return _run_async(_tailor_resume_async(application_id, resume_id, user_id))
     except Exception as exc:
         logger.error("tailor_resume failed", error=str(exc))
         raise self.retry(exc=exc)
 
 
-async def _tailor_resume_async(application_id: str, resume_id: str) -> Dict[str, Any]:
+async def _tailor_resume_async(
+    application_id: str, resume_id: str, user_id: Optional[str] = None
+) -> Dict[str, Any]:
     from sqlalchemy import select
 
     from app.agents.workflows.resume_tailoring import run_resume_tailoring_workflow
@@ -63,6 +67,13 @@ async def _tailor_resume_async(application_id: str, resume_id: str) -> Dict[str,
         )
         master = resume_result.scalar_one_or_none()
         if master is None:
+            return {"skipped": True, "reason": "resume not found"}
+
+        # IDs can arrive from client input, so never combine two users' records.
+        if master.user_id != application.user_id or (
+            user_id is not None and str(application.user_id) != user_id
+        ):
+            logger.warning("tailor_resume ownership mismatch", application_id=application_id)
             return {"skipped": True, "reason": "resume not found"}
 
         from app.models.job import Job
@@ -224,7 +235,7 @@ async def _run_resume_tailoring(input_data: Dict, user_id: str) -> Dict:
     resume_id = input_data.get("resume_id")
     if not application_id or not resume_id:
         return {"error": "Missing application_id or resume_id"}
-    tailor_resume.delay(application_id, resume_id)
+    tailor_resume.delay(application_id, resume_id, user_id)
     return {"triggered": True}
 
 

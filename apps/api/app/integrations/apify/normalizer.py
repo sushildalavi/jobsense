@@ -68,10 +68,12 @@ def normalize_apify_job(
     )
     cleaned_description = _clean_html(raw_description) if raw_description else None
 
-    # URL
-    apply_url = (
-        raw.get("url") or raw.get("applyUrl") or raw.get("jobUrl") or raw.get("link") or None
-    )
+    # URL. Listings are third-party data rendered as links, so keep web URLs only.
+    apply_url = str(
+        raw.get("url") or raw.get("applyUrl") or raw.get("jobUrl") or raw.get("link") or ""
+    ).strip()
+    if not apply_url.lower().startswith(("http://", "https://")):
+        apply_url = ""
 
     # Posting date
     posting_date = _parse_date(
@@ -112,7 +114,7 @@ def normalize_apify_job(
         "cleaned_description": cleaned_description,
         "requirements": requirements,
         "responsibilities": responsibilities,
-        "apply_url": str(apply_url) if apply_url else None,
+        "apply_url": apply_url or None,
         "posting_date": posting_date,
     }
 

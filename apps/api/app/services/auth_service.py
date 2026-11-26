@@ -245,13 +245,12 @@ class AuthService:
             return
 
         token = self._create_password_reset_token(user)
-        reset_url = f"{settings.FRONTEND_URL}/reset-password?token={token}"
-        # In production, send via email service. Logged here for development.
-        logger.info(
-            "Password reset token generated",
-            user_id=str(user.id),
-            reset_url=reset_url,
-        )
+        # No email delivery is implemented. The link is a credential, so it is
+        # only written to the log in local development.
+        details = {"user_id": str(user.id)}
+        if settings.ENVIRONMENT == "development":
+            details["reset_url"] = f"{settings.FRONTEND_URL}/reset-password?token={token}"
+        logger.info("Password reset token generated", **details)
 
     async def reset_password(self, token: str, new_password: str) -> None:
         """Validate reset token and update password."""

@@ -3,13 +3,7 @@ import apiClient from '@/lib/api'
 import { API_ROUTES } from '@/lib/constants'
 
 export async function loginApi(data: LoginRequest): Promise<TokenResponse> {
-  const formData = new URLSearchParams()
-  formData.append('username', data.email)
-  formData.append('password', data.password)
-
-  const response = await apiClient.post<TokenResponse>(API_ROUTES.AUTH_LOGIN, formData, {
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-  })
+  const response = await apiClient.post<TokenResponse>(API_ROUTES.AUTH_LOGIN, data)
   return response.data
 }
 

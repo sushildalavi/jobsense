@@ -22,13 +22,13 @@ export const API_ROUTES = {
   // Applications
   APPLICATIONS: '/api/v1/applications',
   APPLICATION_BY_ID: (id: string) => `/api/v1/applications/${id}`,
-  APPLICATION_STATUS: (id: string) => `/api/v1/applications/${id}/transition`,
+  APPLICATION_STATUS: (id: string) => `/api/v1/applications/${id}/status`,
   APPLICATION_EVENTS: (id: string) => `/api/v1/applications/${id}/events`,
 
   // Resumes
   RESUMES: '/api/v1/resumes',
   RESUME_BY_ID: (id: string) => `/api/v1/resumes/${id}`,
-  RESUME_UPLOAD: '/api/v1/resumes/upload',
+  RESUME_UPLOAD: '/api/v1/resumes',
   RESUME_VERSIONS: (id: string) => `/api/v1/resumes/${id}/versions`,
   RESUME_TAILOR: '/api/v1/resumes/tailor',
 

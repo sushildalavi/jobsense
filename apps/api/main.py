@@ -11,6 +11,7 @@ from typing import AsyncGenerator
 
 import structlog
 from fastapi import FastAPI, Request, status
+from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -128,17 +129,19 @@ def create_app() -> FastAPI:
     async def validation_exception_handler(
         request: Request, exc: RequestValidationError
     ) -> JSONResponse:
+        # Log where validation failed, not the submitted values (passwords included).
         logger.warning(
             "Validation error",
             path=request.url.path,
-            errors=exc.errors(),
+            errors=[{"type": e["type"], "loc": e["loc"], "msg": e["msg"]} for e in exc.errors()],
         )
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             content={
                 "error": "Validation error",
                 "status_code": 422,
-                "details": exc.errors(),
+                # Custom validators put exception objects in the error context.
+                "details": jsonable_encoder(exc.errors()),
             },
         )
 

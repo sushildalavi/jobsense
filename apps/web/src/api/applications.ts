@@ -47,7 +47,7 @@ export async function updateApplicationStatusApi(
   status: ApplicationStatus,
   notes?: string
 ): Promise<Application> {
-  const response = await apiClient.post<Application>(API_ROUTES.APPLICATION_STATUS(id), {
+  const response = await apiClient.patch<Application>(API_ROUTES.APPLICATION_STATUS(id), {
     status,
     notes,
   })

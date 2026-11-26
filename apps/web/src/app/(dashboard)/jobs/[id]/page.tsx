@@ -130,10 +130,9 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
         <TabsContent value="overview">
           <Card>
             <CardContent className="p-6 prose prose-invert max-w-none">
-              <div
-                className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap"
-                dangerouslySetInnerHTML={{ __html: job.cleaned_description.replace(/\n/g, '<br/>') }}
-              />
+              <div className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                {job.cleaned_description}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

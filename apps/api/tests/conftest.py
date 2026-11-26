@@ -44,7 +44,7 @@ else:
 # ---------------------------------------------------------------------------
 # Import application pieces after env is configured
 # ---------------------------------------------------------------------------
-from app.core.database import get_db  # noqa: E402
+from app.api.v1.dependencies import get_db  # noqa: E402
 from app.models import (  # noqa: F401, E402
     agent,
     application,
