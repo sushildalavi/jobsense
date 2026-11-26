@@ -13,8 +13,6 @@ setup: ## Initial project setup
 	pnpm install
 	@echo "→ Setting up Python environment..."
 	cd apps/api && poetry install
-	cd packages/agent && poetry install
-	cd packages/integrations && poetry install
 	@echo "→ Copying .env.example to .env..."
 	cp -n .env.example .env || true
 	@echo "✓ Setup complete! Edit .env with your credentials."
@@ -53,7 +51,7 @@ dev-web: ## Start only the Next.js frontend
 	cd apps/web && pnpm dev
 
 dev-worker: ## Start Celery worker
-	cd apps/api && celery -A app.workers.celery_app worker --loglevel=info
+	cd apps/api && celery -A app.tasks.celery_app worker --loglevel=info
 
 # ─── Database ────────────────────────────────────────────────────────────────
 migrate: ## Run Alembic migrations

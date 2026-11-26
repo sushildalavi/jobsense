@@ -124,13 +124,14 @@ The PostgreSQL schema uses **15 normalized tables** with:
 
 ### Agent Workflows
 
-Five LangGraph workflows orchestrate the AI layer:
+Four LangGraph workflows orchestrate the AI layer:
 
 1. **Job Discovery** — Triggers Apify actors, normalizes raw listings, deduplicates, stores embeddings
 2. **Job Matching** — Computes embedding similarity + skills overlap + seniority fit per user
 3. **Resume Tailoring** — Multi-step: analyze job, identify gaps, rewrite bullets, validate ATS compatibility
 4. **Email Intelligence** — Classify → extract entities → update application status → trigger calendar automation
-5. **Calendar Automation** — Parse interview datetime/timezone, create Google Calendar event, set reminders
+
+Calendar event creation runs as a Celery task after interview details are extracted from email; it is not a LangGraph workflow.
 
 All workflow executions are recorded in `agent_runs` with input/output, model used, tokens consumed, and duration.
 
@@ -256,8 +257,8 @@ All endpoints live under `/api/v1/`. Interactive documentation at `/docs` (Swagg
 
 | Method | Path | Description |
 |---|---|---|
-| `POST` | `/email/sync` | Trigger Gmail sync |
-| `GET` | `/email/threads` | List classified email threads |
+| `POST` | `/emails/sync` | Trigger Gmail sync |
+| `GET` | `/emails/threads` | List classified email threads |
 | `GET` | `/calendar/events` | List interview calendar events |
 
 ### Analytics
@@ -286,7 +287,8 @@ JobSense/
 │   │   │   ├── models/           # SQLAlchemy ORM models
 │   │   │   ├── schemas/          # Pydantic request/response schemas
 │   │   │   ├── services/         # Business logic layer
-│   │   │   └── workers/          # Celery tasks (5 queues)
+│   │   │   ├── agents/workflows/ # LangGraph workflow implementations
+│   │   │   └── tasks/            # Celery tasks (5 queues)
 │   │   ├── scripts/
 │   │   │   └── seed.py           # Demo data seeder
 │   │   ├── tests/
@@ -299,22 +301,23 @@ JobSense/
 │   │   ├── Dockerfile
 │   │   └── requirements.txt
 │   └── web/                      # Next.js 15 frontend
-│       ├── app/                  # App Router pages
-│       ├── components/           # React components + shadcn/ui
-│       ├── lib/                  # API client, utilities
-│       └── Dockerfile
+│       └── src/
+│           ├── app/              # App Router pages
+│           ├── components/       # React components + shadcn/ui
+│           └── lib/              # API client, utilities
 ├── packages/
 │   ├── types/                    # Shared TypeScript types
 │   ├── shared/                   # Shared utilities
-│   ├── agent/                    # LangGraph agent workflows
-│   └── integrations/             # Apify, Gmail, Calendar connectors
+│   └── config/                   # Shared TypeScript and ESLint config
 ├── docker/
 │   └── postgres/
 │       └── init.sql              # Extensions + grants
 ├── .github/
 │   └── workflows/
 │       ├── ci.yml                # Test + lint on every PR
-│       └── deploy.yml            # Deploy to Railway + Vercel on main
+│       ├── deploy-api.yml        # Deploy API on main
+│       ├── deploy-web.yml        # Deploy web app on main
+│       └── deploy.yml            # Deployment workflow
 ├── docker-compose.yml            # Production-like local stack
 ├── docker-compose.override.yml   # Dev overrides (hot-reload + volume mounts)
 ├── Makefile                      # All developer commands

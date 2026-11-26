@@ -84,7 +84,7 @@ services:
     volumes:
       - ./apps/api:/app
     restart: unless-stopped
-    command: celery -A app.workers.celery_app worker --loglevel=info --concurrency=4 -Q ingestion,matching,ai,email,calendar,default
+    command: celery -A app.tasks.celery_app worker --loglevel=info --concurrency=4 -Q ingestion,matching,ai,email,calendar,default
 
   # ─── Celery Beat (Scheduler) ─────────────────────────────────────────────────
   beat:
@@ -102,7 +102,7 @@ services:
     volumes:
       - ./apps/api:/app
     restart: unless-stopped
-    command: celery -A app.workers.celery_app beat --loglevel=info
+    command: celery -A app.tasks.celery_app beat --loglevel=info
 
   # ─── Next.js Frontend ───────────────────────────────────────────────────────
   web:

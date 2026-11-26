@@ -67,7 +67,7 @@ services:
         --directory=/app
         --pattern=*.py
         --recursive
-        -- celery -A app.workers.celery_app worker
+        -- celery -A app.tasks.celery_app worker
            --loglevel=debug
            --concurrency=2
            -Q ingestion,matching,ai,email,calendar,default
@@ -85,7 +85,7 @@ services:
       ENVIRONMENT: development
       DATABASE_URL: postgresql://jobsense:jobsense@postgres:5432/jobsense
       REDIS_URL: redis://redis:6379/0
-    command: celery -A app.workers.celery_app beat --loglevel=info
+    command: celery -A app.tasks.celery_app beat --loglevel=info
 
   # ─── Next.js Frontend (hot-reload via Next.js dev server) ───────────────────
   web:
